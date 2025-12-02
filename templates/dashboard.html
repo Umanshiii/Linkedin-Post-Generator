@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard · LinkedInk AI{% endblock %}
+{% block page_header %}Dashboard{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh;">
+    <!-- Hero Section -->
+    <div class="row justify-content-center">
+        <div class="col-md-10 text-center text-white mb-5">
+            <img src="https://img.icons8.com/fluency/96/ffffff/linkedin.png" alt="LinkedIn" class="mb-3" style="width: 80px;">
+            <h1 class="display-4 fw-bold mb-3">LinkedInk AI</h1>
+            <p class="lead mb-4">Generate posts in YOUR voice using AI ✨</p>
+            
+            <div class="row justify-content-center">
+                <div class="col-md-3">
+                    <div class="card border-0 bg-white text-center p-4 shadow-lg metric-card">
+                        <div class="circle-icon mb-3 mx-auto">
+                            <img src="https://img.icons8.com/ios/50/007AFF/edit.png" style="width: 50px;">
+                        </div>
+                        <h5>Posts Uploaded</h5>
+                        <p class="text-muted mb-1">Previous LinkedIn posts you added</p>
+                        <h3 class="text-primary mb-0">{{ user_posts }}</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 bg-white text-center p-4 shadow-lg metric-card">
+                        <div class="circle-icon mb-3 mx-auto">
+                            <img src="https://img.icons8.com/ios/50/34A853/brain.png" style="width: 50px;">
+                        </div>
+                        <h5>Style Profile</h5>
+                        <p class="text-muted mb-1">Has your writing style been analyzed?</p>
+                        <h3 class="text-success mb-0">{% if has_profile %}✅ Style ready{% else %}❌ Not analyzed{% endif %}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome & Main Actions -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-xl border-0 mb-5">
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <h2>👋 Hi {{ username }}!</h2>
+                        <p class="text-muted">Let's create your next LinkedIn post</p>
+                    </div>
+
+                    {% if user_posts == 0 %}
+                        <div class="text-center">
+                            <a href="{% url 'upload_posts' %}" class="btn btn-primary btn-lg px-5">
+                                Upload Your Previous Posts
+                            </a>
+                        </div>
+                    {% elif not has_profile %}
+                        <div class="text-center">
+                            <a href="{% url 'analyze_style' %}" class="btn btn-success btn-lg px-5">
+                                Analyze My Style
+                            </a>
+                        </div>
+                    {% else %}
+
+                        <div class="text-end mt-3">
+                            <a href="{% url 'upload_posts' %}" class="btn btn-outline-secondary btn-sm">
+                                Add more posts
+                            </a>
+                        </div>
+                        
+                        <!-- NEW FLOW: Topic + Style + Length -->
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text">🎯</span>
+                                    <input type="text" class="form-control" id="topic" placeholder="Topic (AI project launch)">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select form-select-lg" id="language">
+                                    <option>English</option>
+                                    <option>Hindi</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select form-select-lg" id="length">
+                                    <option value="100">Short (100 words)</option>
+                                    <option value="250" selected>Medium (250 words)</option>
+                                    <option value="400">Long (400 words)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button onclick="generatePost()" class="btn btn-primary btn-lg w-100">
+                                    ✨ Generate Post
+                                </button>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function generatePost() {
+    const topic = document.getElementById('topic').value;
+    const language = document.getElementById('language').value;
+    const length = document.getElementById('length').value;
+    
+    if (!topic.trim()) {
+        alert('Please enter a topic!');
+        return;
+    }
+    
+    // POST to generate endpoint
+    fetch('/generate/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: `topic=${encodeURIComponent(topic)}&language=${language}&length=${length}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = `/generated/?post=${data.post_id}`;
+        }
+    });
+}
+</script>
+{% endblock %}

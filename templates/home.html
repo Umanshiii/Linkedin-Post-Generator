@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="hero-section">
+    <div class="container text-center py-5">
+        <img src="https://img.icons8.com/fluency/128/ffffff/linkedin.png" class="mb-4">
+        <h1 class="display-3 fw-bold text-white mb-4">LinkedInk AI</h1>
+        <p class="lead text-white mb-5 fs-4">AI that writes in YOUR voice</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{% url 'register' %}" class="btn btn-light btn-lg px-5 py-3">🚀 Get Started</a>
+            <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-5 py-3">Login</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

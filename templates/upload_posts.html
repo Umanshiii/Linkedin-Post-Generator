@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2>Upload Your LinkedIn Posts</h2>
+        <p class="text-muted">
+            Paste any new posts here. They will be added to your existing posts.
+        </p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.posts_text }}
+            </div>
+            <button type="submit" class="btn btn-primary">Upload Posts</button>
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

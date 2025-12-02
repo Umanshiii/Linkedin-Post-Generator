@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h2>Generated Post: {{ topic }}</h2>
+        <div class="card">
+            <div class="card-body">
+                <div class="post-content">{{ generated_text|linebreaks }}</div>
+            </div>
+        </div>
+        <a href="{% url 'generate_post' %}" class="btn btn-primary mt-3">Generate Another</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">Dashboard</a>
+    </div>
+</div>
+{% endblock %}

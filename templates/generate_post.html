@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2>Generate Post</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">{{ form.topic }}</div>
+            <div class="row">
+                <div class="col-md-6">{{ form.language }}</div>
+                <div class="col-md-6">{{ form.length }}</div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Generate</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
