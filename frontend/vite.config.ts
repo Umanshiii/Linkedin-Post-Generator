@@ -51,7 +51,7 @@
     },
     build: {
       target: 'esnext',
-      outDir: 'build',
+      outDir: "../static/frontend",
     },
     server: {
       port: 3000,
