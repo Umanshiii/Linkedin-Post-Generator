@@ -1,46 +1,67 @@
-import { useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { useState } from "react";
+import { Sparkles } from "lucide-react";
 
 interface AuthPageProps {
-  onLogin: (email: string, password: string) => { success: boolean; error?: string };
-  onRegister: (name: string, email: string, password: string, confirmPassword: string) => { success: boolean; error?: string };
-  onMessage: (type: 'success' | 'error', text: string) => void;
+  onLogin: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; error?: string }>;
+  onRegister: (
+    name: string,
+    email: string,
+    password: string,
+    confirmPassword: string
+  ) => Promise<{ success: boolean; error?: string }>;
+  onMessage: (type: "success" | "error", text: string) => void;
 }
 
 export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (isLogin) {
-      const result = onLogin(formData.email, formData.password);
+      const result = await onLogin(formData.email, formData.password);
       if (!result.success) {
-        setError(result.error || 'Login failed');
+        setError(result.error || "Login failed");
       }
     } else {
-      const result = onRegister(formData.name, formData.email, formData.password, formData.confirmPassword);
+      const result = await onRegister(
+        formData.name,
+        formData.email,
+        formData.password,
+        formData.confirmPassword
+      );
       if (result.success) {
-        onMessage('success', 'Account created successfully. Please log in.');
+        onMessage("success", "Account created successfully. Please log in.");
         setIsLogin(true);
-        setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+        setFormData({
+          name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
       } else {
-        setError(result.error || 'Registration failed');
+        setError(result.error || "Registration failed");
       }
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    setError('');
+    setFormData((prev: typeof formData) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+    setError("");
   };
 
   return (
@@ -48,9 +69,9 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
       <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md p-8">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <img 
-            src="figma:asset/64d1e97b45e7411d6bb204a4488bf8da50f4bdc2.png" 
-            alt="LinkedInk AI" 
+          <img
+            src="./logo.png"
+            alt="LinkedInk AI"
             className="w-16 h-16 rounded-2xl mb-3"
           />
           <h1 className="text-gray-900 text-center">LinkedInk AI</h1>
@@ -64,12 +85,12 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
           <button
             onClick={() => {
               setIsLogin(true);
-              setError('');
+              setError("");
             }}
             className={`flex-1 py-2 rounded-md transition-all ${
               isLogin
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? "bg-white text-blue-600 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
             }`}
           >
             Log in
@@ -77,12 +98,12 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
           <button
             onClick={() => {
               setIsLogin(false);
-              setError('');
+              setError("");
             }}
             className={`flex-1 py-2 rounded-md transition-all ${
               !isLogin
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? "bg-white text-blue-600 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
             }`}
           >
             Create account
@@ -99,7 +120,9 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <h2 className="text-gray-900 mb-4">
-            {isLogin ? 'Log in to LinkedInk AI' : 'Create your LinkedInk AI account'}
+            {isLogin
+              ? "Log in to LinkedInk AI"
+              : "Create your LinkedInk AI account"}
           </h2>
 
           {!isLogin && (
@@ -154,7 +177,10 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
 
           {!isLogin && (
             <div>
-              <label htmlFor="confirmPassword" className="block text-gray-700 mb-2">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-gray-700 mb-2"
+              >
                 Confirm password
               </label>
               <input
@@ -174,18 +200,18 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
             type="submit"
             className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-500/30"
           >
-            {isLogin ? 'Log in' : 'Sign up'}
+            {isLogin ? "Log in" : "Sign up"}
           </button>
 
           <p className="text-center text-sm text-gray-600 mt-4">
             {isLogin ? (
               <>
-                New here?{' '}
+                New here?{" "}
                 <button
                   type="button"
                   onClick={() => {
                     setIsLogin(false);
-                    setError('');
+                    setError("");
                   }}
                   className="text-blue-600 hover:underline"
                 >
@@ -194,12 +220,12 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
               </>
             ) : (
               <>
-                Already have an account?{' '}
+                Already have an account?{" "}
                 <button
                   type="button"
                   onClick={() => {
                     setIsLogin(true);
-                    setError('');
+                    setError("");
                   }}
                   className="text-blue-600 hover:underline"
                 >
