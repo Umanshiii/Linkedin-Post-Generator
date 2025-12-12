@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import { authApi, postsApi } from "../api/client";
 
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
@@ -8,95 +9,101 @@ interface User {
   hasProfile: boolean;
 }
 
-interface StoredUser extends User {
-  password: string;
-}
-
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
 
+  // hydrate user if access token exists
   useEffect(() => {
-    // Check if user is logged in
-    const currentUserId = localStorage.getItem('currentUserId');
-    if (currentUserId) {
-      const users = getStoredUsers();
-      const foundUser = users.find(u => u.id === currentUserId);
-      if (foundUser) {
-        const { password, ...userWithoutPassword } = foundUser;
-        setUser(userWithoutPassword);
-      }
-    }
+    const access = localStorage.getItem("access");
+    if (!access) return;
+
+    postsApi
+      .dashboard()
+      .then((res) => {
+        const data = res.data;
+        const hydrated: User = {
+          id: "backend",
+          name: data.username,
+          email: "",
+          postsCount: data.user_posts_count,
+          hasProfile: data.has_profile,
+        };
+        setUser(hydrated);
+      })
+      .catch(() => {
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+        setUser(null);
+      });
   }, []);
 
-  const register = (name: string, email: string, password: string, confirmPassword: string): { success: boolean; error?: string } => {
-    if (password !== confirmPassword) {
-      return { success: false, error: "Passwords don't match" };
+  // registration with field-level errors
+  const register = async (
+    username: string,
+    name: string,
+    email: string,
+    password: string,
+    confirmPassword: string
+  ): Promise<{
+    success: boolean;
+    error?: string;
+    fieldErrors?: Record<string, string[]>;
+  }> => {
+    console.log("DEBUG passwords:", password, confirmPassword);
+
+    try {
+      await authApi.register(username, name, email, password, confirmPassword);
+      return { success: true };
+    } catch (err: any) {
+      const data = (err.response?.data || {}) as Record<string, string[]>;
+      const msg =
+        data.password?.[0] ||
+        data.confirmPassword?.[0] ||
+        data.username?.[0] ||
+        data.email?.[0] ||
+        "Registration failed";
+      return { success: false, error: msg, fieldErrors: data };
     }
-
-    if (password.length < 6) {
-      return { success: false, error: "Password must be at least 6 characters" };
-    }
-
-    const users = getStoredUsers();
-    
-    if (users.find(u => u.email === email)) {
-      return { success: false, error: "Email already registered" };
-    }
-
-    const newUser: StoredUser = {
-      id: Date.now().toString(),
-      name,
-      email,
-      password,
-      postsCount: 0,
-      hasProfile: false
-    };
-
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-
-    return { success: true };
   };
 
-  const login = (email: string, password: string): { success: boolean; error?: string } => {
-    const users = getStoredUsers();
-    const foundUser = users.find(u => u.email === email && u.password === password);
+  // login with username
+  const login = async (
+    username: string,
+    password: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const res = await authApi.login(username, password);
+      const { access, refresh } = res.data;
+      localStorage.setItem("access", access);
+      localStorage.setItem("refresh", refresh);
 
-    if (!foundUser) {
-      return { success: false, error: "Invalid email or password" };
+      const dashRes = await postsApi.dashboard();
+      const data = dashRes.data;
+
+      const loggedIn: User = {
+        id: "backend",
+        name: data.username,
+        email: "",
+        postsCount: data.user_posts_count,
+        hasProfile: data.has_profile,
+      };
+      setUser(loggedIn);
+
+      return { success: true };
+    } catch {
+      return { success: false, error: "Invalid username or password" };
     }
-
-    localStorage.setItem('currentUserId', foundUser.id);
-    const { password: _, ...userWithoutPassword } = foundUser;
-    setUser(userWithoutPassword);
-
-    return { success: true };
   };
 
   const logout = () => {
-    localStorage.removeItem('currentUserId');
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
     setUser(null);
   };
 
   const updateUser = (updates: Partial<User>) => {
-    if (!user) return;
-
-    const users = getStoredUsers();
-    const userIndex = users.findIndex(u => u.id === user.id);
-    
-    if (userIndex !== -1) {
-      users[userIndex] = { ...users[userIndex], ...updates };
-      localStorage.setItem('users', JSON.stringify(users));
-      
-      const { password, ...userWithoutPassword } = users[userIndex];
-      setUser(userWithoutPassword);
-    }
+    setUser((prev) => (prev ? { ...prev, ...updates } : prev));
   };
 
   return { user, login, logout, register, updateUser };
-}
-
-function getStoredUsers(): StoredUser[] {
-  const stored = localStorage.getItem('users');
-  return stored ? JSON.parse(stored) : [];
 }

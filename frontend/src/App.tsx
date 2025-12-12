@@ -1,23 +1,27 @@
-import { useState, useEffect } from 'react';
-import { AuthPage } from './components/AuthPage';
-import { Dashboard } from './components/Dashboard';
-import { UploadPosts } from './components/UploadPosts';
-import { AnalyzeStyle } from './components/AnalyzeStyle';
-import { GeneratedPost } from './components/GeneratedPost';
-import { useAuth } from './hooks/useAuth';
+import { useState, useEffect } from "react";
+import { AuthPage } from "./components/AuthPage";
+import { Dashboard } from "./components/Dashboard";
+import { UploadPosts } from "./components/UploadPosts";
+import { AnalyzeStyle } from "./components/AnalyzeStyle";
+import { GeneratedPost } from "./components/GeneratedPost";
+import { useAuth } from "./hooks/useAuth";
+import logo from "../assets/logo.png";
 
-type Page = 'auth' | 'dashboard' | 'upload' | 'analyze' | 'generated';
+type Page = "auth" | "dashboard" | "upload" | "analyze" | "generated";
 
 export default function App() {
   const { user, login, logout, register } = useAuth();
-  const [currentPage, setCurrentPage] = useState<Page>('auth');
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [currentPage, setCurrentPage] = useState<Page>("auth");
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     if (user) {
-      setCurrentPage('dashboard');
+      setCurrentPage("dashboard");
     } else {
-      setCurrentPage('auth');
+      setCurrentPage("auth");
     }
   }, [user]);
 
@@ -26,9 +30,23 @@ export default function App() {
     setMessage(null);
   };
 
-  const showMessage = (type: 'success' | 'error', text: string) => {
+  const showMessage = (type: "success" | "error", text: string) => {
     setMessage({ type, text });
     setTimeout(() => setMessage(null), 5000);
+  };
+
+  const handleLogin = async (username: string, password: string) => {
+    return login(username, password);
+  };
+
+  const handleRegister = async (
+    username: string,
+    name: string,
+    email: string,
+    password: string,
+    confirmPassword: string
+  ) => {
+    return register(username, name, email, password, confirmPassword);
   };
 
   return (
@@ -37,12 +55,12 @@ export default function App() {
         <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
           <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
             <button
-              onClick={() => navigateTo('dashboard')}
+              onClick={() => navigateTo("dashboard")}
               className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
-              <img 
-                src="figma:asset/64d1e97b45e7411d6bb204a4488bf8da50f4bdc2.png" 
-                alt="LinkedInk AI" 
+              <img
+                src={logo}
+                alt="LinkedInk AI"
                 className="w-8 h-8 rounded-lg"
               />
               <span className="text-gray-900">LinkedInk AI</span>
@@ -61,9 +79,9 @@ export default function App() {
         <div className="max-w-6xl mx-auto px-4 pt-4">
           <div
             className={`p-4 rounded-lg ${
-              message.type === 'success'
-                ? 'bg-green-50 text-green-800 border border-green-200'
-                : 'bg-red-50 text-red-800 border border-red-200'
+              message.type === "success"
+                ? "bg-green-50 text-green-800 border border-green-200"
+                : "bg-red-50 text-red-800 border border-red-200"
             }`}
           >
             {message.text}
@@ -72,37 +90,31 @@ export default function App() {
       )}
 
       <main>
-        {!user && currentPage === 'auth' && (
+        {!user && currentPage === "auth" && (
           <AuthPage
-            onLogin={login}
-            onRegister={register}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
             onMessage={showMessage}
           />
         )}
 
-        {user && currentPage === 'dashboard' && (
+        {user && currentPage === "dashboard" && (
           <Dashboard
-            user={user}
+            username={user.name}
             onNavigate={navigateTo}
             onMessage={showMessage}
           />
         )}
 
-        {user && currentPage === 'upload' && (
-          <UploadPosts
-            onNavigate={navigateTo}
-            onMessage={showMessage}
-          />
+        {user && currentPage === "upload" && (
+          <UploadPosts onNavigate={navigateTo} onMessage={showMessage} />
         )}
 
-        {user && currentPage === 'analyze' && (
-          <AnalyzeStyle
-            onNavigate={navigateTo}
-            onMessage={showMessage}
-          />
+        {user && currentPage === "analyze" && (
+          <AnalyzeStyle onNavigate={navigateTo} onMessage={showMessage} />
         )}
 
-        {user && currentPage === 'generated' && (
+        {user && currentPage === "generated" && (
           <GeneratedPost onNavigate={navigateTo} />
         )}
       </main>

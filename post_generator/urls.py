@@ -1,16 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include
-from posts.views import register_view
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-
-    # Root → register page ONLY
-    path('', register_view, name='home'),
-
-    # App URLs (dashboard, upload, etc.)
-    path('', include('posts.urls')),
-
-    # Auth URLs
-    path('accounts/', include('django.contrib.auth.urls')),
+    path("admin/", admin.site.urls),
+    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("posts/", include("posts.urls")),
 ]

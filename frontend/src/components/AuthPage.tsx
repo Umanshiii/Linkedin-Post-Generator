@@ -1,41 +1,52 @@
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
 
+interface AuthResult {
+  success: boolean;
+  error?: string;
+  fieldErrors?: Record<string, string[]>;
+}
+
 interface AuthPageProps {
   onLogin: (
-    email: string,
+    username: string,
     password: string
   ) => Promise<{ success: boolean; error?: string }>;
   onRegister: (
+    username: string,
     name: string,
     email: string,
     password: string,
     confirmPassword: string
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<AuthResult>;
   onMessage: (type: "success" | "error", text: string) => void;
 }
 
 export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
+    username: "",
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setFieldErrors({});
 
     if (isLogin) {
-      const result = await onLogin(formData.email, formData.password);
+      const result = await onLogin(formData.username, formData.password);
       if (!result.success) {
         setError(result.error || "Login failed");
       }
     } else {
       const result = await onRegister(
+        formData.username,
         formData.name,
         formData.email,
         formData.password,
@@ -45,6 +56,7 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
         onMessage("success", "Account created successfully. Please log in.");
         setIsLogin(true);
         setFormData({
+          username: "",
           name: "",
           email: "",
           password: "",
@@ -52,25 +64,34 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
         });
       } else {
         setError(result.error || "Registration failed");
+        if (result.fieldErrors) {
+          const fe: Record<string, string> = {};
+          Object.entries(result.fieldErrors).forEach(([key, value]) => {
+            if (Array.isArray(value) && value.length > 0) {
+              fe[key] = value[0] as string;
+            }
+          });
+          setFieldErrors(fe);
+        }
       }
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev: typeof formData) => ({
+    setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
     setError("");
+    setFieldErrors({});
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md p-8">
-        {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <img
-            src="./logo.png"
+            src="../assets/logo.png"
             alt="LinkedInk AI"
             className="w-16 h-16 rounded-2xl mb-3"
           />
@@ -80,12 +101,12 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
           </p>
         </div>
 
-        {/* Tab switcher */}
         <div className="flex gap-2 mb-6 bg-gray-100 p-1 rounded-lg">
           <button
             onClick={() => {
               setIsLogin(true);
               setError("");
+              setFieldErrors({});
             }}
             className={`flex-1 py-2 rounded-md transition-all ${
               isLogin
@@ -99,6 +120,7 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
             onClick={() => {
               setIsLogin(false);
               setError("");
+              setFieldErrors({});
             }}
             className={`flex-1 py-2 rounded-md transition-all ${
               !isLogin
@@ -110,20 +132,39 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
           </button>
         </div>
 
-        {/* Error message */}
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
             {error}
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <h2 className="text-gray-900 mb-4">
             {isLogin
               ? "Log in to LinkedInk AI"
               : "Create your LinkedInk AI account"}
           </h2>
+
+          <div>
+            <label htmlFor="username" className="block text-gray-700 mb-2">
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Panda"
+            />
+            {fieldErrors.username && (
+              <p className="mt-1 text-sm text-red-600">
+                {fieldErrors.username}
+              </p>
+            )}
+          </div>
 
           {!isLogin && (
             <div>
@@ -138,26 +179,33 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
                 onChange={handleChange}
                 required={!isLogin}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="John Doe"
+                placeholder="Umanshi Gupta"
               />
             </div>
           )}
 
-          <div>
-            <label htmlFor="email" className="block text-gray-700 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="john@example.com"
-            />
-          </div>
+          {!isLogin && (
+            <div>
+              <label htmlFor="email" className="block text-gray-700 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required={!isLogin}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Panda@example.com"
+              />
+              {fieldErrors.email && (
+                <p className="mt-1 text-sm text-red-600">
+                  {fieldErrors.email}
+                </p>
+              )}
+            </div>
+          )}
 
           <div>
             <label htmlFor="password" className="block text-gray-700 mb-2">
@@ -173,6 +221,11 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="••••••••"
             />
+            {fieldErrors.password && (
+              <p className="mt-1 text-sm text-red-600">
+                {fieldErrors.password}
+              </p>
+            )}
           </div>
 
           {!isLogin && (
@@ -193,6 +246,11 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="••••••••"
               />
+              {fieldErrors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-600">
+                  {fieldErrors.confirmPassword}
+                </p>
+              )}
             </div>
           )}
 
@@ -212,6 +270,7 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
                   onClick={() => {
                     setIsLogin(false);
                     setError("");
+                    setFieldErrors({});
                   }}
                   className="text-blue-600 hover:underline"
                 >
@@ -226,6 +285,7 @@ export function AuthPage({ onLogin, onRegister, onMessage }: AuthPageProps) {
                   onClick={() => {
                     setIsLogin(true);
                     setError("");
+                    setFieldErrors({});
                   }}
                   className="text-blue-600 hover:underline"
                 >

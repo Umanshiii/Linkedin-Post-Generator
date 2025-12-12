@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react';
-import { Brain, Loader2, Check } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { useEffect, useState } from "react";
+import { Loader2, Check } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
+import { postsApi } from "../api/client";
 
-type Page = 'auth' | 'dashboard' | 'upload' | 'analyze' | 'generated';
+type Page = "auth" | "dashboard" | "upload" | "analyze" | "generated";
 
 interface AnalyzeStyleProps {
   onNavigate: (page: Page) => void;
-  onMessage: (type: 'success' | 'error', text: string) => void;
+  onMessage: (type: "success" | "error", text: string) => void;
 }
 
 interface StyleProfile {
@@ -22,24 +23,37 @@ export function AnalyzeStyle({ onNavigate, onMessage }: AnalyzeStyleProps) {
   const [profile, setProfile] = useState<StyleProfile | null>(null);
 
   useEffect(() => {
-    // Simulate analysis
-    setTimeout(() => {
-      const posts = JSON.parse(localStorage.getItem('userPosts') || '[]');
-      
-      // Mock style analysis
-      const mockProfile: StyleProfile = {
-        tone: 'Professional and inspirational',
-        avgLength: Math.floor(posts.join(' ').split(' ').length / posts.length),
-        commonWords: ['excited', 'share', 'learn', 'growth', 'team'],
-        structure: 'Story-based with clear takeaways'
-      };
+    const run = async () => {
+      try {
+        // 1) call backend to analyze current user's posts
+        await postsApi.analyzeStyle();
 
-      localStorage.setItem('styleProfile', JSON.stringify(mockProfile));
-      setProfile(mockProfile);
-      updateUser({ hasProfile: true });
-      setIsAnalyzing(false);
-    }, 3000);
-  }, [updateUser]);
+        // 2) fetch updated dashboard stats (includes style info)
+        const dashRes = await postsApi.dashboard();
+        const data = dashRes.data;
+
+        const p: StyleProfile = {
+          tone: data.tone_summary || "Not available",
+          avgLength: data.typical_length || 0,
+          commonWords: data.vocabulary_keywords || [],
+          structure: data.structure_summary || "Not available",
+        };
+
+        setProfile(p);
+        updateUser({ hasProfile: true });
+        onMessage("success", "Style profile analyzed successfully.");
+      } catch {
+        onMessage(
+          "error",
+          "Could not analyze your style. Please upload posts and try again."
+        );
+      } finally {
+        setIsAnalyzing(false);
+      }
+    };
+
+    run();
+  }, [updateUser, onMessage]);
 
   if (isAnalyzing) {
     return (
@@ -53,7 +67,8 @@ export function AnalyzeStyle({ onNavigate, onMessage }: AnalyzeStyleProps) {
               Analyzing your writing style...
             </h2>
             <p className="text-gray-600">
-              Our AI is studying your posts to understand your unique voice. This will take just a moment.
+              Our AI is studying your posts to understand your unique voice.
+              This will take just a moment.
             </p>
             <div className="mt-8 space-y-3">
               <div className="flex items-center gap-3 text-sm text-gray-600">
@@ -82,17 +97,14 @@ export function AnalyzeStyle({ onNavigate, onMessage }: AnalyzeStyleProps) {
           <div className="bg-green-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Check className="w-10 h-10 text-green-600" />
           </div>
-          <h1 className="text-gray-900 mb-2">
-            ✨ Style analysis complete!
-          </h1>
+          <h1 className="text-gray-900 mb-2">✨ Style analysis complete!</h1>
           <p className="text-gray-600">
-            We've learned your unique writing style
+            We&apos;ve learned your unique writing style.
           </p>
         </div>
 
         {profile && (
           <div className="space-y-6 mb-8">
-            {/* Tone */}
             <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-xl p-6">
               <div className="flex items-start gap-3">
                 <div className="bg-blue-600 w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -105,7 +117,6 @@ export function AnalyzeStyle({ onNavigate, onMessage }: AnalyzeStyleProps) {
               </div>
             </div>
 
-            {/* Structure */}
             <div className="bg-gradient-to-br from-purple-50 to-white border border-purple-200 rounded-xl p-6">
               <div className="flex items-start gap-3">
                 <div className="bg-purple-600 w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -118,7 +129,6 @@ export function AnalyzeStyle({ onNavigate, onMessage }: AnalyzeStyleProps) {
               </div>
             </div>
 
-            {/* Length */}
             <div className="bg-gradient-to-br from-green-50 to-white border border-green-200 rounded-xl p-6">
               <div className="flex items-start gap-3">
                 <div className="bg-green-600 w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -126,12 +136,13 @@ export function AnalyzeStyle({ onNavigate, onMessage }: AnalyzeStyleProps) {
                 </div>
                 <div>
                   <h3 className="text-gray-900 mb-1">Average length</h3>
-                  <p className="text-gray-700">~{profile.avgLength} words per post</p>
+                  <p className="text-gray-700">
+                    ~{profile.avgLength} words per post
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Common words */}
             <div className="bg-gradient-to-br from-orange-50 to-white border border-orange-200 rounded-xl p-6">
               <div className="flex items-start gap-3">
                 <div className="bg-orange-600 w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -140,14 +151,20 @@ export function AnalyzeStyle({ onNavigate, onMessage }: AnalyzeStyleProps) {
                 <div className="flex-1">
                   <h3 className="text-gray-900 mb-2">Your signature words</h3>
                   <div className="flex flex-wrap gap-2">
-                    {profile.commonWords.map((word, idx) => (
-                      <span
-                        key={idx}
-                        className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm"
-                      >
-                        {word}
+                    {profile.commonWords.length > 0 ? (
+                      profile.commonWords.map((word, idx) => (
+                        <span
+                          key={idx}
+                          className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm"
+                        >
+                          {word}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-gray-600 text-sm">
+                        No keywords available yet.
                       </span>
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>
@@ -157,8 +174,11 @@ export function AnalyzeStyle({ onNavigate, onMessage }: AnalyzeStyleProps) {
 
         <button
           onClick={() => {
-            onMessage('success', 'Style profile ready! You can now generate posts.');
-            onNavigate('dashboard');
+            onMessage(
+              "success",
+              "Style profile ready! You can now generate posts."
+            );
+            onNavigate("dashboard");
           }}
           className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-500/30"
         >
