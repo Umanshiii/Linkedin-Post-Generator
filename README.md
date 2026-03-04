@@ -25,15 +25,13 @@ Post templates based on category (announcement, learning, milestone, thought lea
 🧠 Technology Stack
 Component	Technology
 Backend	Django (Python)
-Current Frontend	HTML, CSS
-In Progress (Upgrade)	React + TypeScript
+Frontend	React + TypeScript
 
 The system currently runs on a stable backend foundation, with frontend modernization underway to improve usability and design.
 
 🔧 Installation & Setup
 Clone the Repository
-git clone https://github.com/yourusername/linkedink-ai.git
-cd linkedink-ai
+git clone https://github.com/Umanshiii/Linkedin-Post-Generator
 
 Install Dependencies
 pip install -r requirements.txt
