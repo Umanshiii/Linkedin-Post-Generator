@@ -8,9 +8,14 @@ https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
 """
 
 import os
+import sys
+
+path = '/home/umanshiii/post_generator'
+if path not in sys.path:
+    sys.path.append(path)
+
+os.environ['ALLOWED_HOSTS'] = 'umanshiii.pythonanywhere.com'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'post_generator.settings'
 
 from django.core.wsgi import get_wsgi_application
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'post_generator.settings')
-
 application = get_wsgi_application()
