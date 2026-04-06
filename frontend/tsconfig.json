@@ -1,6 +1,7 @@
 // frontend/tsconfig.json
 {
   "compilerOptions": {
+    "types": ["vite/client"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",

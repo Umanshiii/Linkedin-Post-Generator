@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
+import logo from './assets/logo.png';
 
 interface AuthResult {
   success: boolean;
