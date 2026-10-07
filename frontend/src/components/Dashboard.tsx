@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { FileText, Brain, Sparkles, Loader2 } from "lucide-react";
 import { postsApi } from "../api/client";
+import { MascotCompanion } from "./MascotCompanion"; // Import the mascot component
 
 type Page = "auth" | "dashboard" | "upload" | "analyze" | "generated";
 
@@ -91,44 +92,49 @@ export function Dashboard({ username, onNavigate, onMessage }: DashboardProps) {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
-      <div className="mb-12 text-center">
-        <h1 className="text-gray-900 mb-3">Welcome, {firstName} 👋</h1>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Upload your posts, let LinkedInk AI learn your style, and then
-          generate new posts in your unique voice
-        </p>
+      {/* Engaging Mascot Banner Header */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between shadow-sm mb-12">
+        <div className="space-y-2 text-center sm:text-left mb-6 sm:mb-0">
+          <h1 className="text-3xl font-bold text-gray-900">Welcome, {firstName} 👋</h1>
+          <p className="text-gray-600 max-w-xl">
+            Upload your posts, let LinkedInk AI learn your unique style, and generate engaging content effortlessly.
+          </p>
+        </div>
+        <MascotCompanion 
+          state={isGenerating ? "thinking" : "idle"} 
+          message="Ready to make your LinkedIn posts shine today?" 
+          size="md" 
+        />
       </div>
 
       <div className="grid md:grid-cols-2 gap-6 mb-12">
-
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
           <div className="flex items-start gap-4">
             <div className="bg-blue-100 p-3 rounded-xl">
               <FileText className="w-6 h-6 text-blue-600" />
             </div>
             <div className="flex-1">
-              <h3 className="text-gray-900 mb-1">Previous LinkedIn posts</h3>
+              <h3 className="text-gray-900 font-semibold mb-1">Previous LinkedIn posts</h3>
               <p className="text-gray-600 text-sm mb-3">
                 Posts you've added for analysis
               </p>
-              <div className="text-4xl text-gray-900 mb-3">{postsCount}</div>
+              <div className="text-4xl font-bold text-gray-900 mb-3">{postsCount}</div>
               <div className="flex flex-col gap-1">
                 <button
                   onClick={() => onNavigate("upload")}
-                  className="text-blue-600 hover:underline text-sm text-left"
+                  className="text-blue-600 hover:underline text-sm text-left font-medium"
                 >
                   Add more posts
                 </button>
                 {postsCount > 0 && (
                   <button
                     onClick={() => onNavigate("upload")}
-                    className="text-red-600 hover:underline text-sm text-left"
+                    className="text-red-600 hover:underline text-sm text-left font-medium"
                   >
                     Remove posts
                   </button>
                 )}
               </div>
-
             </div>
           </div>
         </div>
@@ -148,7 +154,7 @@ export function Dashboard({ username, onNavigate, onMessage }: DashboardProps) {
               />
             </div>
             <div className="flex-1">
-              <h3 className="text-gray-900 mb-1">Writing style profile</h3>
+              <h3 className="text-gray-900 font-semibold mb-1">Writing style profile</h3>
               <p className="text-gray-600 text-sm mb-3">
                 Has your style been analyzed?
               </p>
@@ -156,12 +162,12 @@ export function Dashboard({ username, onNavigate, onMessage }: DashboardProps) {
                 {hasProfile ? (
                   <>
                     <span className="text-2xl">✅</span>
-                    <span className="text-green-600">Style ready</span>
+                    <span className="text-green-600 font-medium">Style ready</span>
                   </>
                 ) : (
                   <>
                     <div className="w-3 h-3 bg-red-400 rounded-full" />
-                    <span className="text-gray-500">Not analyzed yet</span>
+                    <span className="text-gray-500 font-medium">Not analyzed yet</span>
                   </>
                 )}
               </div>
@@ -172,59 +178,64 @@ export function Dashboard({ username, onNavigate, onMessage }: DashboardProps) {
 
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
         {postsCount === 0 && (
-          <div className="text-center max-w-xl mx-auto">
-            <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FileText className="w-8 h-8 text-blue-600" />
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8 py-6">
+            <MascotCompanion state="suggesting" size="lg" message="Upload a few past posts so I can study your unique voice!" />
+            <div className="text-center md:text-left max-w-md">
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                Let's start by uploading your posts
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Upload at least a few LinkedIn posts so we can learn your unique writing style and begin crafting content.
+              </p>
+              <button
+                onClick={() => onNavigate("upload")}
+                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-500/30 font-medium"
+              >
+                Upload your posts
+              </button>
             </div>
-            <h2 className="text-gray-900 mb-3">
-              Let's start by uploading your posts
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Upload at least a few LinkedIn posts so we can learn your unique
-              writing style
-            </p>
-            <button
-              onClick={() => onNavigate("upload")}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-500/30"
-            >
-              Upload your posts
-            </button>
           </div>
         )}
 
         {postsCount > 0 && !hasProfile && (
-          <div className="text-center max-w-xl mx-auto">
-            <div className="bg-green-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Brain className="w-8 h-8 text-green-600" />
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8 py-6">
+            <MascotCompanion state="suggesting" size="lg" message="You have posts! Let's analyze your writing style now." />
+            <div className="text-center md:text-left max-w-md">
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                Great! Now let's analyze your style
+              </h2>
+              <p className="text-gray-600 mb-6">
+                We have {postsCount} {postsCount === 1 ? "post" : "posts"} from you. Click below to analyze your writing patterns.
+              </p>
+              <button
+                onClick={() => onNavigate("analyze")}
+                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-3 rounded-lg hover:from-green-700 hover:to-green-800 transition-all shadow-lg shadow-green-500/30 font-medium"
+              >
+                Analyze my style
+              </button>
             </div>
-            <h2 className="text-gray-900 mb-3">
-              Great! Now let's analyze your style
-            </h2>
-            <p className="text-gray-600 mb-6">
-              We have {postsCount} {postsCount === 1 ? "post" : "posts"} from
-              you. Click below to analyze your writing style.
-            </p>
-            <button
-              onClick={() => onNavigate("analyze")}
-              className="bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-3 rounded-lg hover:from-green-700 hover:to-green-800 transition-all shadow-lg shadow-green-500/30"
-            >
-              Analyze my style
-            </button>
           </div>
         )}
 
         {postsCount > 0 && hasProfile && (
           <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-6">
-              <h2 className="text-gray-900 mb-2">✨ Generate a new post</h2>
-              <p className="text-gray-600">
-                Posts will be generated to match your usual style and length
-              </p>
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">✨ Generate a new post</h2>
+                <p className="text-gray-600 text-sm">
+                  Configured to match your exact tone and style profile
+                </p>
+              </div>
+              <MascotCompanion 
+                state={isGenerating ? "thinking" : "idle"} 
+                message={isGenerating ? "Analyzing style & drafting..." : "What's on your mind?"} 
+                size="sm" 
+              />
             </div>
 
             <div className="space-y-4">
               <div>
-                <label htmlFor="topic" className="block text-gray-700 mb-2">
+                <label htmlFor="topic" className="block text-gray-700 font-medium mb-2">
                   What's your post about?
                 </label>
                 <input
@@ -239,7 +250,7 @@ export function Dashboard({ username, onNavigate, onMessage }: DashboardProps) {
               </div>
 
               <div>
-                <label htmlFor="language" className="block text-gray-700 mb-2">
+                <label htmlFor="language" className="block text-gray-700 font-medium mb-2">
                   Language
                 </label>
                 <select
@@ -256,7 +267,7 @@ export function Dashboard({ username, onNavigate, onMessage }: DashboardProps) {
               </div>
 
               <div>
-                <label htmlFor="length" className="block text-gray-700 mb-2">
+                <label htmlFor="length" className="block text-gray-700 font-medium mb-2">
                   Length
                 </label>
                 <select
@@ -273,7 +284,7 @@ export function Dashboard({ username, onNavigate, onMessage }: DashboardProps) {
               </div>
 
               <div>
-                <label htmlFor="tone" className="block text-gray-700 mb-2">
+                <label htmlFor="tone" className="block text-gray-700 font-medium mb-2">
                   Tone
                 </label>
                 <select
@@ -284,24 +295,18 @@ export function Dashboard({ username, onNavigate, onMessage }: DashboardProps) {
                   disabled={isGenerating}
                 >
                   <option value="auto">Match my usual tone</option>
-                  <option value="professional">
-                    Professional & authoritative
-                  </option>
-                  <option value="inspirational">
-                    Inspirational & motivational
-                  </option>
+                  <option value="professional">Professional & authoritative</option>
+                  <option value="inspirational">Inspirational & motivational</option>
                   <option value="educational">Educational & helpful</option>
                   <option value="personal">Personal & authentic</option>
-                  <option value="conversational">
-                    Engaging & conversational
-                  </option>
+                  <option value="conversational">Engaging & conversational</option>
                 </select>
               </div>
 
               <button
                 onClick={handleGenerate}
                 disabled={!topic.trim() || isGenerating}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 font-medium"
               >
                 {isGenerating ? (
                   <>

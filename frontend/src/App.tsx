@@ -4,20 +4,28 @@ import { Dashboard } from "./components/Dashboard";
 import { UploadPosts } from "./components/UploadPosts";
 import { AnalyzeStyle } from "./components/AnalyzeStyle";
 import { GeneratedPost } from "./components/GeneratedPost";
+import { ResetPasswordConfirm } from "./components/ResetPasswordConfirm"; // Import the new component
 import { useAuth } from "./hooks/useAuth";
 import logo from "../assets/logo.png";
 
-type Page = "auth" | "dashboard" | "upload" | "analyze" | "generated";
+type Page = "auth" | "dashboard" | "upload" | "analyze" | "generated" | "reset-confirm";
 
 export default function App() {
-  const { user, login, logout, register } = useAuth();
+  const { user, login, logout, register, requestPasswordReset } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>("auth");
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
 
+  // Check URL on load to see if user landed on a reset password token link
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("token") || window.location.pathname.includes("/password-reset-confirm")) {
+      setCurrentPage("reset-confirm");
+      return;
+    }
+
     if (user) {
       setCurrentPage("dashboard");
     } else {
@@ -47,6 +55,10 @@ export default function App() {
     confirmPassword: string
   ) => {
     return register(username, name, email, password, confirmPassword);
+  };
+
+  const handleForgotPassword = async (email: string) => {
+    return requestPasswordReset(email);
   };
 
   return (
@@ -94,7 +106,15 @@ export default function App() {
           <AuthPage
             onLogin={handleLogin}
             onRegister={handleRegister}
+            onForgotPassword={handleForgotPassword}
             onMessage={showMessage}
+          />
+        )}
+
+        {!user && currentPage === "reset-confirm" && (
+          <ResetPasswordConfirm
+            onMessage={showMessage}
+            onNavigateToAuth={() => navigateTo("auth")}
           />
         )}
 

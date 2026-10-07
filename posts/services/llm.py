@@ -1,9 +1,11 @@
 import json
 import os
 from cerebras.cloud.sdk import Cerebras
-
+from dotenv import load_dotenv
+load_dotenv()
 
 API_KEY = os.environ.get("CEREBRAS_API_KEY")
+
 client: Cerebras | None = None
 if API_KEY:
     client = Cerebras(api_key=API_KEY)

@@ -30,7 +30,7 @@ export const authApi = {
     password: string,
     confirmPassword: string
   ) =>
-    api.post("/posts/api/register/", {
+    api.post("/api/register/", {
       username,
       name,
       email,
@@ -60,19 +60,24 @@ export interface Post {
 
 export const postsApi = {
 
-  dashboard: () => api.get<DashboardStats>("/posts/api/dashboard/"),
-  analyzeStyle: () => api.post("/posts/api/analyze/"),
+  dashboard: () => api.get<DashboardStats>("/api/dashboard/"),
+  analyzeStyle: () => api.post("/api/analyze/"),
 
   generate: (topic: string, language: string, length: number, tone: string) =>
-    api.post<Post>("/posts/api/generate/", { topic, language, length, tone }),
+    api.post<Post>("/api/generate/", { topic, language, length, tone }),
   
   uploadPosts: (posts_text: string) =>
-    api.post("/posts/api/upload-posts/", { posts_text }),
+    api.post("/api/upload-posts/", { posts_text }),
 
   deletePost(id: number) {
-    return api.delete(`/posts/api/linkedin-posts/${id}/`);},
+    return api.delete(`/api/linkedin-posts/${id}/`);},
 
   listPosts() {
-    return api.get("/posts/api/linkedin-posts/");},
+    return api.get("/api/linkedin-posts/");},
 
+  requestPasswordReset: (email: string) =>
+    api.post("/api/password-reset/", { email }),
+
+  confirmPasswordReset: (token: string, password: string) =>
+    api.post("/api/password-reset/confirm/", { token, password }),
 };

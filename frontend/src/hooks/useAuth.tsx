@@ -95,6 +95,20 @@ export function useAuth() {
     }
   };
 
+  // reset password
+  const requestPasswordReset = async (
+    email: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      (authApi as any).requestPasswordReset(email);
+      return { success: true };
+    } catch (err: any) {
+      const data = err.response?.data || {};
+      const msg = data.detail || data.email?.[0] || "Failed to send reset link";
+      return { success: false, error: msg };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
@@ -105,5 +119,5 @@ export function useAuth() {
     setUser((prev) => (prev ? { ...prev, ...updates } : prev));
   };
 
-  return { user, login, logout, register, updateUser };
+  return { user, login, logout, register, updateUser, requestPasswordReset };
 }
