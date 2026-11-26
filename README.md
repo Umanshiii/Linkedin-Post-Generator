@@ -1,94 +1,89 @@
-# Linkedin-Post-Generator
-LinkedInk AI is a content generation tool designed to help users create structured and engaging LinkedIn posts with minimal effort. The goal is simple: make professional writing easier, faster, and more consistent without losing authenticity.
-LinkedInk AI is a writing assistant designed to help users generate high-quality LinkedIn posts efficiently. The platform focuses on clarity, structure, and tone, enabling professionals, students, creators, and business leaders to communicate effectively without struggling through the initial drafting process.
+# LinkedInk AI — Linkedin post generator
 
-This project aims to bridge the gap between ideas and articulate expression, making the writing experience faster, smoother, and more intuitive.
+LinkedInk AI is a developer-focused content generation engine designed to create structured, high-impact LinkedIn posts. The platform focuses on narrative structure, hook optimization, and tone calibration, helping professionals, developers, and creators share insights with minimal drafting friction.
 
-📌 Features
+---
 
-Structured LinkedIn post generation
+## 📌 Key Features
 
-User-input based content creation
+- **Structured Post Generation:** Outlines and drafts complete posts from bulleted concepts or raw notes.
+- **Hook & Flow Optimization:** Formats opening lines to maximize retention before the platform fold.
+- **Multi-Tone Engine:** Generates variants across storytelling, technical deep dives, milestones, and contrarian perspectives.
+- **Clean Architecture:** Modular separation between API inference logic and interactive frontend state.
 
-Professional formatting and flow
+---
 
-Simple and clean interface
+## 🧠 Tech Stack
 
-Planned enhancements:
+| Layer | Technologies |
+| :--- | :--- |
+| **Backend** | Python, Django, Django REST Framework, SQLite |
+| **Frontend** | React, TypeScript, Tailwind CSS, Lucide Icons |
+| **Inference / AI** | Cerebras API (`llama-3.3-70b`), Custom Prompt Pipelines |
 
-Tone variations (formal, storytelling, casual, inspiring)
+---
 
-Rewrite and refinement options
+## 🔧 Installation & Local Setup
 
-Post templates based on category (announcement, learning, milestone, thought leadership)
+### 1. Clone the Repository
+```bash
+git clone [https://github.com/Umanshiii/Linkedin-Post-Generator.git](https://github.com/Umanshiii/Linkedin-Post-Generator.git)
+cd Linkedin-Post-Generator
 
-🧠 Technology Stack
-Component	Technology
-Backend	Django (Python)
-Frontend	React + TypeScript
+```
 
-The system currently runs on a stable backend foundation, with frontend modernization underway to improve usability and design.
+### 2. Backend Setup
 
-🔧 Installation & Setup
-Clone the Repository
-git clone https://github.com/Umanshiii/Linkedin-Post-Generator
+```bash
+# Create and activate virtual environment
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+# source venv/bin/activate
 
-Install Dependencies
+# Install dependencies
 pip install -r requirements.txt
 
-Run the Application
+# Run migrations and start server
+python manage.py migrate
 python manage.py runserver
 
+```
 
-Open the provided localhost link in your browser to access the application.
+### 3. Frontend Setup
 
-📂 Project Roadmap
-Status	Feature
-✔ Completed	Basic content generation
-✔ Completed	Backend logic and formatting
-⏳ In Progress	React + TypeScript UI
-⏳ Planned	Tone presets and rewrite engine
-⏳ Future Scope	Export options, AI polishing, user accounts
+```bash
+# Navigate to the frontend directory
+cd frontend
 
-Development is iterative and ongoing.
+# Install dependencies
+npm install
 
-🧩 Contribution Guidelines
+# Start development server
+npm run dev
 
-Contributions are welcome and encouraged. You may:
+```
 
-Report bugs
+---
 
-Suggest improvements
+## 📂 Active Engineering Roadmap
 
-Submit pull requests
+| Status | Milestone / Feature | Technical Focus |
+| --- | --- | --- |
+| **Completed** | Core Generation Pipeline | Prompt templating & initial DRF endpoints |
+| **Completed** | React + TypeScript Dashboard | Input forms, post preview, and copy mechanics |
+| **In Progress** | Streaming Responses (SSE) | Server-Sent Events via Django ASGI for real-time token streaming |
+| **Planned** | Multi-Angle Hook Engine | Concurrent asynchronous prompt evaluation (`asyncio`) |
+| **Planned** | Schema Validation & Retries | Pydantic response parsing with automated repair loops |
+| **Future Scope** | PDF Carousel Exporter | Dynamic multi-slide document generation for LinkedIn carousels |
 
-Improve interface or logic
+---
 
-Contribute to documentation
+## 📄 License
 
-Before contributing, please open an issue to discuss your proposed changes.
+Copyright (c) 2026 Umanshi Gupta. All rights reserved.
 
-📄 License
+This source code is proprietary. Unauthorized copying, modification, distribution, or commercial use of this software, via any medium, is strictly prohibited.
 
-This project is licensed under the MIT License. See the LICENSE
- file for details.
-
-Key points of the MIT License:
-
-Free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-
-Software is provided “as-is” without warranty
-
-⭐ Support
-
-If this project adds value or aligns with your interests:
-
-Star ⭐ the repository
-
-Share it with others
-
-Provide feedback
-
-Your support directly contributes to improvements and feature development.
-
-LinkedInk AI is built to make professional LinkedIn writing efficient, accessible, and polished.
+```
