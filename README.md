@@ -4,7 +4,7 @@ LinkedInk AI is a developer-focused content generation engine designed to create
 
 ---
 
-## 📌 Key Features
+## Key Features
 
 - **Structured Post Generation:** Outlines and drafts complete posts from bulleted concepts or raw notes.
 - **Hook & Flow Optimization:** Formats opening lines to maximize retention before the platform fold.
@@ -13,7 +13,7 @@ LinkedInk AI is a developer-focused content generation engine designed to create
 
 ---
 
-## 🧠 Tech Stack
+## Tech Stack
 
 | Layer | Technologies |
 | :--- | :--- |
@@ -23,7 +23,7 @@ LinkedInk AI is a developer-focused content generation engine designed to create
 
 ---
 
-## 🔧 Installation & Local Setup
+## Installation & Local Setup
 
 ### 1. Clone the Repository
 ```bash
@@ -67,7 +67,7 @@ npm run dev
 
 ---
 
-## 📂 Active Engineering Roadmap
+## Active Engineering Roadmap
 
 | Status | Milestone / Feature | Technical Focus |
 | --- | --- | --- |
@@ -80,7 +80,7 @@ npm run dev
 
 ---
 
-## 📄 License
+## License
 
 Copyright (c) 2026 Umanshi Gupta. All rights reserved.
 
